@@ -1,0 +1,72 @@
+import { ADD_TECH, DELETE_TECH, GET_TECHS, SET_LOADING, TECHS_ERROR } from './types';
+
+// Get techs from server
+export const getTechsAction = () => async (dispatch) => {
+    try {
+        setLoadingAction();
+        const res = await fetch('/techs');
+        const data = await res.json();
+        
+        dispatch({
+            type: GET_TECHS,
+            payload: data,
+        })
+    } catch (error) {
+        dispatch({
+            type: TECHS_ERROR,
+            payload: error.response.statusText,
+        })
+    }
+};
+
+// Add technician to server
+export const addTechAction = (tech) => async (dispatch) => {
+    try {
+        setLoadingAction();
+        const res = await fetch('/techs', {
+            method: 'POST',
+            body: JSON.stringify(tech),
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const data = await res.json();
+        
+        dispatch({
+            type: ADD_TECH,
+            payload: data,
+        })
+    } catch (error) {
+        dispatch({
+            type: TECHS_ERROR,
+            payload: error.response.statusText,
+        })
+    }
+};
+
+// Delete tech from server
+export const deleteTechAction = (id) => async (dispatch) => {
+    try {
+        setLoadingAction();
+        await fetch(`techs/${id}`, {
+            method: 'DELETE',
+        });
+        
+        dispatch({
+            type: DELETE_TECH,
+            payload: id,
+        })
+    } catch (error) {
+        dispatch({
+            type: TECHS_ERROR,
+            payload: error.response.statusText,
+        })
+    }
+};
+
+// Set loading to true
+export const setLoadingAction = () => {
+    return {
+        type: SET_LOADING,
+    }
+};

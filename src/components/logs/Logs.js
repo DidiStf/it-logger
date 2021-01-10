@@ -1,27 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import LogItem from './LogItem';
 import Preloader from '../layout/Preloader';
 
+import { getLogsAction } from '../../store/actions/log';
+import { select as selectLog } from '../../store/selectors/log';
+
 const Logs = () => {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const getLogs = async () => {
-    setLoading(true);
-    const rest = await fetch('/logs');
-    const data = await rest.json();
-
-    setLogs(data);
-    setLoading(false);
-  };
+  const dispatch = useDispatch();
+  const { logs, loading } = useSelector(selectLog);
 
   useEffect(() => {
+    const getLogs = async () => {
+      await dispatch(getLogsAction());
+    };
     getLogs();
-    //eslint-disable-next-line
-  }, []);
+  }, [dispatch]);
 
-  return loading ? (
+  return (loading || logs === null) ? (
     <Preloader />
   ) : (
     <ul className='collection with-header'>
@@ -31,7 +28,7 @@ const Logs = () => {
       {!loading && logs.length === 0 ? (
         <p className='center'>No logs to show...</p>
       ) : (
-        logs.map((log) => <LogItem log={log} key={log.id} />)
+        logs?.map((log) => <LogItem log={log} key={log.id} />)
       )}
     </ul>
   );
